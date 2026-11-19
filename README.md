@@ -68,4 +68,12 @@ A tabela é pesquisada por e-mail. O bônus configura 20 linhas por página para
 
 ## Integração contínua
 
-O workflow [Testes frontend](.github/workflows/frontend.yml) executa os fluxos principais e as variações do formulário no Chrome em cada push na main e pull request. O Firefox cobre os mesmos fluxos com uma execução separada e não bloqueante do Sortable. O gesto do WebDriver falhou com e sem display virtual no Firefox do CI, enquanto o Chrome passou. O cenário mantém o gesto real e publica seu resultado em um JUnit separado. Os relatórios e capturas disponíveis ficam nos artefatos da execução. O bônus pode ser acionado manualmente com a opção `run_bonus`.
+O workflow [Testes frontend](.github/workflows/frontend.yml) executa os fluxos principais e as variações do formulário no Chrome em cada push na main e pull request. O Firefox cobre os mesmos fluxos, com o Sortable em uma etapa não bloqueante e com JUnit próprio. Os relatórios e capturas disponíveis ficam nos artefatos da execução. O bônus pode ser acionado manualmente com a opção `run_bonus`.
+
+### Investigação do Sortable no Firefox
+
+Com Firefox 159.0.1 e geckodriver 0.37.1 no Linux, o cenário completo passou em **0 de 2 sessões headless** e **1 de 2 sessões com display virtual**. Em duas falhas, o gesto moveu **Five** quando deveria mover **Six**.
+
+Em uma página mínima de controle, o Firefox iniciou o arraste e chegou ao alvo. A captura após o gesto registrou `dragstart` e `dragover`, sem `drop` ou `dragend`. O Chrome registrou os eventos de encerramento e moveu o item. No DemoQA, o Firefox chegou a reordenar a lista durante o arraste. Os resultados apontam para uma limitação na automação do gesto via Firefox/WebDriver, com causa exata ainda em aberto. [Registro relacionado da Mozilla](https://bugzilla.mozilla.org/show_bug.cgi?id=1515879) · [Execução do Firefox no CI](https://github.com/renatodanielbrito77/test_desafio_QA_front/actions/runs/44570323470/job/135723261549)
+
+O Sortable permanece obrigatório no Chrome pelo comando `./testar-desafio`. O Firefox continua como verificação de compatibilidade não bloqueante no CI.
