@@ -42,8 +42,8 @@ python -m behave features/browser_windows.feature -D headed=true
 # Executar somente o bônus
 python -m behave --tags @bonus
 
-# Executar os cenários principais e o negativo no Firefox
-python -m behave --tags 'not @bonus' -D browser=firefox -D seed=1729
+# Executar a cobertura Firefox validada
+python -m behave --tags 'not @bonus and not @sortable' -D browser=firefox -D seed=1729
 
 # Repetir os dados de uma execução
 python -m behave -D seed=1729
@@ -62,4 +62,4 @@ A tabela é pesquisada por e-mail. O bônus configura 20 linhas por página para
 
 ## Integração contínua
 
-O workflow [Testes frontend](.github/workflows/frontend.yml) executa os fluxos principais e o negativo em Chrome e Firefox em cada push na main e pull request. Os relatórios JUnit e as capturas disponíveis ficam nos artefatos da execução. O bônus pode ser acionado manualmente com a opção `run_bonus`.
+O workflow [Testes frontend](.github/workflows/frontend.yml) executa os fluxos principais e o negativo no Chrome em cada push na main e pull request. O Firefox cobre os mesmos fluxos com uma execução separada e não bloqueante do Sortable. O gesto do WebDriver falhou com e sem display virtual no Firefox do CI, enquanto o Chrome passou. O cenário mantém o gesto real e publica seu resultado em um JUnit separado. Os relatórios e capturas disponíveis ficam nos artefatos da execução. O bônus pode ser acionado manualmente com a opção `run_bonus`.
