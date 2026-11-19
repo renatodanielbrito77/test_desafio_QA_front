@@ -1,5 +1,6 @@
 from time import monotonic
 
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
 from pages.base import Page
@@ -14,8 +15,9 @@ class ProgressBar(Page):
         return int(self.visible(self.BAR).get_dom_attribute("aria-valuenow"))
 
     def start(self):
-        assert self.visible(self.TOGGLE).text == "Start"
-        self.click(self.TOGGLE)
+        button = self.visible(self.TOGGLE)
+        assert button.text == "Start"
+        button.send_keys(Keys.ENTER)
 
     def stop_before(self, limit):
         # Leave time for the click to reach the browser before the limit.
@@ -24,7 +26,7 @@ class ProgressBar(Page):
         )
         before_click = self.value()
         assert before_click < limit, f"A barra já chegou a {before_click}% antes do clique."
-        self.click(self.TOGGLE)
+        self.visible(self.TOGGLE).send_keys(Keys.ENTER)
         return before_click
 
     def verify_stopped(self, limit, before_click):
@@ -50,6 +52,6 @@ class ProgressBar(Page):
         self.wait.until(lambda _: self.value() == 100)
 
     def reset(self):
-        self.click(self.RESET)
+        self.visible(self.RESET).send_keys(Keys.ENTER)
         self.wait.until(lambda _: self.value() == 0)
         assert self.visible(self.TOGGLE).text == "Start"
