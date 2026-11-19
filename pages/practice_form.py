@@ -10,6 +10,11 @@ from selenium.webdriver.support.ui import Select
 
 from pages.base import Page
 
+ENGLISH_MONTHS = (
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+)
+
 
 @dataclass(frozen=True)
 class Student:
@@ -53,7 +58,10 @@ class Student:
             "Student Email": self.email,
             "Gender": self.gender,
             "Mobile": self.mobile,
-            "Date of Birth": self.birth_date.strftime("%d %B,%Y"),
+            "Date of Birth": (
+                f"{self.birth_date.day:02d} {ENGLISH_MONTHS[self.birth_date.month - 1]},"
+                f"{self.birth_date.year}"
+            ),
             "Subjects": self.subject,
             "Hobbies": self.hobby,
             "Picture": self.attachment.name,
@@ -80,7 +88,7 @@ class PracticeForm(Page):
         self.select_option("#state input[role='combobox']", student.state)
         self.select_option("#city input[role='combobox']", student.city)
         self.select_birth_date(student.birth_date)
-        self.click("#submit")
+        self.submit()
 
     def click_label(self, text):
         self.click(f"//label[normalize-space(.)='{text}']", By.XPATH)
@@ -95,7 +103,8 @@ class PracticeForm(Page):
         self.verify_birth_date_input(birth_date)
 
     def verify_birth_date_input(self, birth_date):
-        expected = birth_date.strftime("%d %b %Y")
+        month = ENGLISH_MONTHS[birth_date.month - 1][:3]
+        expected = f"{birth_date.day:02d} {month} {birth_date.year}"
         self.wait.until(
             lambda _: self.visible(self.BIRTH_DATE).get_property("value") == expected,
             message=f"O campo de data não manteve o valor selecionado: {expected}",
@@ -117,3 +126,12 @@ class PracticeForm(Page):
     def close_confirmation(self):
         ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
         self.wait.until(ec.invisibility_of_element_located((By.CSS_SELECTOR, self.MODAL_TITLE)))
+
+    def submit(self):
+        self.visible("#submit").send_keys(Keys.ENTER)
+
+    def verify_missing_required_fields(self):
+        self.visible("#userForm.was-validated")
+        first_name = self.visible("#firstName")
+        assert self.driver.execute_script("return arguments[0].validity.valueMissing", first_name)
+        assert not self.driver.find_elements(By.CSS_SELECTOR, self.MODAL_TITLE)

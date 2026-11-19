@@ -25,16 +25,23 @@ class ProgressBar(Page):
         before_click = self.value()
         assert before_click < limit, f"A barra já chegou a {before_click}% antes do clique."
         self.click(self.TOGGLE)
+        return before_click
 
-    def verify_stopped(self, limit):
+    def verify_stopped(self, limit, before_click):
         assert self.visible(self.TOGGLE).text == "Start"
         stopped_at = self.value()
-        assert 0 < stopped_at <= limit, f"A barra parou em {stopped_at}%."
+        assert 0 < stopped_at < limit, (
+            f"Antes do clique: {before_click}%. Após parar: {stopped_at}%. "
+            f"Esperado: entre 1% e {limit - 1}%."
+        )
         started_checking = monotonic()
 
         def remains_stopped(_):
             current = self.value()
-            assert current == stopped_at, f"A barra mudou de {stopped_at}% para {current}%."
+            assert current == stopped_at, (
+                f"Antes do clique: {before_click}%. "
+                f"Após parar, a barra mudou de {stopped_at}% para {current}%."
+            )
             return monotonic() - started_checking >= 0.4
 
         WebDriverWait(self.driver, 2, poll_frequency=0.1).until(remains_stopped)

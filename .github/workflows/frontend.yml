@@ -1,0 +1,44 @@
+name: Testes frontend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_bonus:
+        description: Executar também o bônus com defeito conhecido
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - name: Executar cenários principais e negativo
+        run: python -m behave --tags 'not @bonus' -D browser=${{ matrix.browser }} -D seed=1729 --junit --junit-directory artifacts/junit
+      - name: Executar bônus solicitado
+        if: ${{ inputs.run_bonus && matrix.browser == 'chrome' }}
+        run: python -m behave --tags @bonus -D seed=1729 --junit --junit-directory artifacts/bonus
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demoqa-${{ matrix.browser }}
+          path: artifacts/
+          if-no-files-found: ignore

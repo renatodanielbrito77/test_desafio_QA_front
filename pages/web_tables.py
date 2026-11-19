@@ -70,6 +70,10 @@ class WebTables(Page):
         field.send_keys(modifier, "a", Keys.NULL, Keys.BACKSPACE)
         if email:
             field.send_keys(email)
+        self.wait.until(
+            lambda _: self.visible(self.SEARCH).get_property("value") == email,
+            message=f"A busca não refletiu o valor {email!r}.",
+        )
 
     def row_locator(self, email):
         return f"//table/tbody/tr[td[normalize-space(.)='{email}']]"
@@ -86,7 +90,14 @@ class WebTables(Page):
     def snapshot(self):
         self.search("")
         rows = [self.row_data(row) for row in self.driver.find_elements(By.CSS_SELECTOR, self.ROWS)]
-        return {data[3]: data for data in rows if len(data) == 6 and data[3]}
+        records = {}
+        for data in rows:
+            if len(data) != 6 or not data[3]:
+                continue
+            email = data[3]
+            assert email not in records, f"E-mail duplicado na tabela: {email}"
+            records[email] = data
+        return records
 
     def show_all_test_records(self):
         Select(self.visible("select")).select_by_visible_text("Show 20")
@@ -96,7 +107,3 @@ class WebTables(Page):
         row = self.visible(self.row_locator(record.email), By.XPATH)
         actual = self.row_data(row)
         assert actual == record.cells(), f"Linha para {record.email}: {actual!r}; esperado {record.cells()!r}"
-
-    def verify_absent(self, email):
-        self.search(email)
-        assert not self.find_row(email), f"O registro {email} ainda aparece na tabela."

@@ -9,7 +9,7 @@ Funcionalidade: Gestão de registros na tabela
     Quando atualizo os dados desse registro
     Então a tabela exibe os dados atualizados
     Quando excluo esse registro
-    Então a tabela deixa de exibir o registro excluído
+    Então a tabela volta a exibir somente os registros originais
 
   @frontend @bonus
   Cenário: Criar e excluir doze registros gerados durante a execução

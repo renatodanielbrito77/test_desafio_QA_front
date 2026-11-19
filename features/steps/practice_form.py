@@ -20,3 +20,14 @@ def verifico_confirmacao(context):
 @then("posso fechar o modal de confirmação com Escape")
 def fecho_confirmacao(context):
     context.form.close_confirmation()
+
+
+@when("tento enviar o formulário vazio")
+def envio_formulario_vazio(context):
+    context.form = PracticeForm(context.driver)
+    context.form.submit()
+
+
+@then("o primeiro nome é identificado como obrigatório e o modal não abre")
+def verifico_rejeicao(context):
+    context.form.verify_missing_required_fields()

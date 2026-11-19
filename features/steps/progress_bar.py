@@ -7,12 +7,12 @@ from pages.progress_bar import ProgressBar
 def inicio_e_paro(context):
     context.progress = ProgressBar(context.driver)
     context.progress.start()
-    context.progress.stop_before(25)
+    context.progress_before_click = context.progress.stop_before(25)
 
 
-@then("a barra fica parada com valor de até 25%")
+@then("a barra fica parada com valor abaixo de 25%")
 def verifico_pausa(context):
-    context.progress.verify_stopped(25)
+    context.progress.verify_stopped(25, context.progress_before_click)
 
 
 @when("retomo o avanço da barra")

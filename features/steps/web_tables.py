@@ -6,6 +6,7 @@ from pages.web_tables import Record, WebTables
 @when("crio um registro")
 def crio_registro(context):
     context.tables = WebTables(context.driver)
+    context.original_records = context.tables.snapshot()
     context.record = Record.generate(context.rng, "unico")
     context.tables.create(context.record)
 
@@ -28,9 +29,13 @@ def excluo_registro(context):
     context.tables.delete(context.record.email)
 
 
-@then("a tabela deixa de exibir o registro excluído")
+@then("a tabela volta a exibir somente os registros originais")
 def verifico_exclusao(context):
-    context.tables.verify_absent(context.record.email)
+    actual = context.tables.snapshot()
+    assert actual == context.original_records, (
+        f"Tabela após excluir {context.record.email}: {actual!r}; "
+        f"esperado: {context.original_records!r}."
+    )
 
 
 @when("crio um registro distinto para cada item da tabela")
@@ -62,8 +67,11 @@ def excluo_registros_do_bonus(context):
         actual = context.tables.snapshot()
         expected = context.original_records | remaining
         missing = sorted(expected.keys() - actual.keys())
+        counts = f"Antes: {len(expected) + 1}; depois: {len(actual)}; esperado: {len(expected)}"
+        print(f"Exclusão de {record.email}. {counts}.", flush=True)
         assert actual == expected, (
             f"Após excluir {record.email}, a tabela divergiu do esperado. "
+            f"{counts}. "
             f"Registros que também sumiram: {missing}."
         )
 
