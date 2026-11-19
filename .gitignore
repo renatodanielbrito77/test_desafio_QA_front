@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+artifacts/
+.DS_Store
+
+/ANOTACOES_REUNIAO_TECNICA.md
