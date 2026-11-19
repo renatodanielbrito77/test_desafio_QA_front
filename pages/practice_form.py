@@ -81,7 +81,8 @@ class PracticeForm(Page):
         self.fill("#userEmail", student.email)
         self.click_label(student.gender)
         self.fill("#userNumber", student.mobile)
-        self.select_option("#subjectsInput", student.subject)
+        if student.subject:
+            self.select_option("#subjectsInput", student.subject)
         self.click_label(student.hobby)
         self.visible("#uploadPicture").send_keys(str(student.attachment))
         self.fill("#currentAddress", student.address)
@@ -130,8 +131,12 @@ class PracticeForm(Page):
     def submit(self):
         self.visible("#submit").send_keys(Keys.ENTER)
 
-    def verify_missing_required_fields(self):
+    def verify_rejection(self, selector, reason):
         self.visible("#userForm.was-validated")
-        first_name = self.visible("#firstName")
-        assert self.driver.execute_script("return arguments[0].validity.valueMissing", first_name)
-        assert not self.driver.find_elements(By.CSS_SELECTOR, self.MODAL_TITLE)
+        field = self.visible(selector)
+        assert self.driver.execute_script("return arguments[0].validity[arguments[1]]", field, reason), (
+            f"O campo {selector} não apresentou a validação {reason!r}."
+        )
+        assert not self.driver.find_elements(By.CSS_SELECTOR, self.MODAL_TITLE), (
+            "O modal de confirmação abriu após um envio inválido."
+        )

@@ -4,7 +4,7 @@ Suíte de testes ponta a ponta em **Python, Selenium WebDriver e Behave**. As es
 
 ## Como avaliar a entrega
 
-Após instalar as dependências, execute os cinco fluxos principais e o cenário negativo com `python -m behave --tags 'not @bonus' -D seed=1729`. A expectativa é que todos passem.
+Após instalar as dependências e ativar o ambiente virtual, execute **`./testar-desafio`**. O comando roda somente os cinco cenários obrigatórios do enunciado no Chrome, com semente 1729. O bônus, as validações negativas e o cenário de Subjects vazio ficam fora dessa execução.
 
 Execute o bônus com `python -m behave --tags @bonus -D seed=1729`. Enquanto o defeito persistir, a saída será de falha após a primeira exclusão. O teste informa as contagens e as linhas afetadas. Veja os [passos para reproduzir os defeitos](docs/defeitos-demoqa.md).
 
@@ -13,7 +13,8 @@ Execute o bônus com `python -m behave --tags @bonus -D seed=1729`. Enquanto o d
 | Fluxo | Critério verificado |
 | --- | --- |
 | Practice Form | Preenche todos os campos com dados válidos gerados durante a execução, anexa um TXT, confere os dados do modal e fecha a confirmação. |
-| Practice Form negativo | Tenta enviar o formulário vazio, confere o campo obrigatório e verifica que o modal permanece fechado. |
+| Practice Form negativo | Verifica a rejeição do formulário vazio, de um e-mail sem arroba e de telefones com nove dígitos ou com letras. Em todos os casos, a suíte confere que o modal permanece fechado. |
+| Practice Form sem matéria | Envia dados válidos com **Subjects** vazio e confere que o modal aceita o cadastro com esse campo em branco. |
 | Browser Windows | Abre uma janela real, valida “This is a sample page”, fecha a nova janela e retorna à original. |
 | Web Tables | Cria, edita e exclui um registro, conferindo a criação e a edição e comparando a tabela sem filtro com o estado inicial após excluir. |
 | Progress Bar | Inicia, para abaixo de 25%, confirma a pausa, retoma até 100% e reseta para 0%. |
@@ -30,8 +31,10 @@ Cada cenário começa na página inicial e usa o menu e submenu do DemoQA. A aut
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python -m behave --tags 'not @bonus' -D seed=1729 --junit --junit-directory artifacts/junit
+./testar-desafio
 ```
+
+O comando usa a tag `@original`. Para executar o mesmo recorte pelo PowerShell ou gerar JUnit, rode `python -m behave --tags @original -D seed=1729 --junit --junit-directory artifacts/junit`.
 
 No PowerShell, use `.\.venv\Scripts\Activate.ps1` para ativar o ambiente virtual.
 
@@ -41,6 +44,9 @@ python -m behave features/browser_windows.feature -D headed=true
 
 # Executar somente o bônus
 python -m behave --tags @bonus
+
+# Executar as validações negativas do formulário
+python -m behave --tags @negative -D seed=1729
 
 # Executar a cobertura Firefox validada
 python -m behave --tags 'not @bonus and not @sortable' -D browser=firefox -D seed=1729
@@ -62,4 +68,4 @@ A tabela é pesquisada por e-mail. O bônus configura 20 linhas por página para
 
 ## Integração contínua
 
-O workflow [Testes frontend](.github/workflows/frontend.yml) executa os fluxos principais e o negativo no Chrome em cada push na main e pull request. O Firefox cobre os mesmos fluxos com uma execução separada e não bloqueante do Sortable. O gesto do WebDriver falhou com e sem display virtual no Firefox do CI, enquanto o Chrome passou. O cenário mantém o gesto real e publica seu resultado em um JUnit separado. Os relatórios e capturas disponíveis ficam nos artefatos da execução. O bônus pode ser acionado manualmente com a opção `run_bonus`.
+O workflow [Testes frontend](.github/workflows/frontend.yml) executa os fluxos principais e as variações do formulário no Chrome em cada push na main e pull request. O Firefox cobre os mesmos fluxos com uma execução separada e não bloqueante do Sortable. O gesto do WebDriver falhou com e sem display virtual no Firefox do CI, enquanto o Chrome passou. O cenário mantém o gesto real e publica seu resultado em um JUnit separado. Os relatórios e capturas disponíveis ficam nos artefatos da execução. O bônus pode ser acionado manualmente com a opção `run_bonus`.

@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")"
+exec python3 -m behave --tags @original -D browser=chrome -D seed=1729

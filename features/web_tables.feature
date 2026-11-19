@@ -1,7 +1,7 @@
 # language: pt
 Funcionalidade: Gestão de registros na tabela
 
-  @frontend
+  @frontend @original
   Cenário: Criar, editar e excluir um registro
     Dado que acesso "Web Tables" pelo menu "Elements"
     Quando crio um registro

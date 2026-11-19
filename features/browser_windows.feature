@@ -1,7 +1,7 @@
 # language: pt
 Funcionalidade: Janelas do navegador
 
-  @frontend
+  @frontend @original
   Cenário: Abrir e fechar uma janela de exemplo
     Dado que acesso "Browser Windows" pelo menu "Alerts, Frame & Windows"
     Quando abro uma nova janela

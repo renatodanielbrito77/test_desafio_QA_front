@@ -1,7 +1,7 @@
 # language: pt
 Funcionalidade: Controle da barra de progresso
 
-  @frontend
+  @frontend @original
   Cenário: Parar a barra, concluir o progresso e resetar
     Dado que acesso "Progress Bar" pelo menu "Widgets"
     Quando inicio a barra e interrompo seu avanço antes de 25%
