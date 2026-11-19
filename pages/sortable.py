@@ -36,4 +36,7 @@ class Sortable(Page):
                 .release()
                 .perform()
             )
-            self.wait.until(lambda _: self.items()[0].text == text)
+            self.wait.until(
+                lambda _: self.items()[0].text == text,
+                message=f"O gesto deveria mover {text!r} para a primeira posição.",
+            )

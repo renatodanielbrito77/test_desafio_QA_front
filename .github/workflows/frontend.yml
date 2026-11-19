@@ -32,7 +32,13 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements.txt
       - name: Executar cenários principais e negativo
-        run: python -m behave --tags 'not @bonus' -D browser=${{ matrix.browser }} -D seed=1729 --junit --junit-directory artifacts/junit
+        run: |
+          args=(--tags 'not @bonus' -D browser=${{ matrix.browser }} -D seed=1729 --junit --junit-directory artifacts/junit)
+          if [ "${{ matrix.browser }}" = firefox ]; then
+            xvfb-run -a -s '-screen 0 1600x1200x24' python -m behave "${args[@]}" -D headed=true
+          else
+            python -m behave "${args[@]}"
+          fi
       - name: Executar bônus solicitado
         if: ${{ inputs.run_bonus && matrix.browser == 'chrome' }}
         run: python -m behave --tags @bonus -D seed=1729 --junit --junit-directory artifacts/bonus
